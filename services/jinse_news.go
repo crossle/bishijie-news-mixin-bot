@@ -55,7 +55,7 @@ func sendJinseTopStoryToChannel(ctx context.Context, stats *JinseStats) {
 }
 func (service *JinseNewsService) Run(ctx context.Context) error {
 	topStory := getTopJinseStory()
-	stats := &Stats{topStory.ID}
+	stats := &JinseStats{topStory.ID}
 	gocron.Every(5).Minutes().Do(sendJinseTopStoryToChannel, ctx, stats)
 	<-gocron.Start()
 	return nil

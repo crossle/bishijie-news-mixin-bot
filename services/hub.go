@@ -39,4 +39,5 @@ func (hub *Hub) StartService(name string) error {
 
 func (hub *Hub) registerServices() {
 	hub.services["news"] = &NewsService{}
+	hub.services["jinse"] = &JinseNewsService{}
 }

@@ -6,10 +6,10 @@ import (
 	"log"
 	"strings"
 
+	bot "github.com/MixinNetwork/bot-api-go-client"
 	"github.com/crossle/bishijie-news-mixin-bot/config"
 	"github.com/crossle/bishijie-news-mixin-bot/models"
 	"github.com/jasonlvhit/gocron"
-	bot "github.com/mixinmessenger/bot-api-go-client"
 )
 
 type JinseNewsService struct{}

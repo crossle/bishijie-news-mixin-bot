@@ -2,13 +2,42 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
+	"time"
 
 	bot "github.com/MixinNetwork/bot-api-go-client"
 
 	"github.com/crossle/bishijie-news-mixin-bot/config"
+	"github.com/crossle/bishijie-news-mixin-bot/durable"
 	"github.com/crossle/bishijie-news-mixin-bot/models"
+	"github.com/crossle/bishijie-news-mixin-bot/session"
 )
+
+func StartBlaze(db *sql.DB) error {
+	logger, err := durable.NewLoggerClient("", true)
+	if err != nil {
+		return err
+	}
+	defer logger.Close()
+	ctx, cancel := newBlazeContext(db, logger)
+	defer cancel()
+
+	for {
+		if err := bot.Loop(ctx, ResponseMessage{}, config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey); err != nil {
+			session.Logger(ctx).Error(err)
+		}
+		session.Logger(ctx).Info("connection loop end")
+		time.Sleep(time.Second)
+	}
+	return nil
+}
+
+func newBlazeContext(db *sql.DB, client *durable.LoggerClient) (context.Context, context.CancelFunc) {
+	ctx := session.WithLogger(context.Background(), durable.BuildLogger(client, "blaze", nil))
+	ctx = session.WithDatabase(ctx, db)
+	return context.WithCancel(ctx)
+}
 
 type ResponseMessage struct {
 }

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"log"
 
 	bot "github.com/MixinNetwork/bot-api-go-client"
@@ -32,7 +33,11 @@ func getTopJinseStory() LiveItem {
 
 func sendJinseTopStoryToChannel(ctx context.Context, stats *JinseStats) {
 	prevStoryId := stats.getPrevTopStoryId()
-	stories, _ := GetJinseStories()
+	stories, err := GetJinseStories()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	for i := len(stories) - 1; i >= 0; i-- {
 		story := stories[i]
 		if story.ID > prevStoryId {

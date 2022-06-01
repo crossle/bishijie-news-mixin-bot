@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"log"
-	"strings"
 
 	bot "github.com/MixinNetwork/bot-api-go-client"
 	"github.com/crossle/bishijie-news-mixin-bot/config"
@@ -36,9 +35,6 @@ func sendJinseTopStoryToChannel(ctx context.Context, stats *JinseStats) {
 	stories, _ := GetJinseStories()
 	for i := len(stories) - 1; i >= 0; i-- {
 		story := stories[i]
-		if strings.Contains(story.Link, "bishijie") {
-			continue
-		}
 		if story.ID > prevStoryId {
 			log.Printf("Sending top story to channel...")
 			stats.updatePrevTopStoryId(story.ID)

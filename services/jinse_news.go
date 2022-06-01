@@ -14,25 +14,9 @@ import (
 
 type JinseNewsService struct{}
 
-type JinseStats struct {
-	prevStoryId int
-}
+var jinseId int64
 
-func (self JinseStats) getPrevTopStoryId() int {
-	return self.prevStoryId
-}
-
-func (self *JinseStats) updatePrevTopStoryId(id int) {
-	self.prevStoryId = id
-}
-
-func getTopJinseStory() LiveItem {
-	stories, _ := GetJinseStories()
-	return stories[len(stories)-1]
-}
-
-func sendJinseTopStoryToChannel(ctx context.Context, stats *JinseStats) {
-	prevStoryId := stats.getPrevTopStoryId()
+func sendJinseTopStoryToChannel(ctx context.Context) {
 	stories, err := GetJinseStories()
 	if err != nil {
 		fmt.Println(err)
@@ -40,9 +24,9 @@ func sendJinseTopStoryToChannel(ctx context.Context, stats *JinseStats) {
 	}
 	for i := len(stories) - 1; i >= 0; i-- {
 		story := stories[i]
-		if story.ID > prevStoryId {
+		if story.ID > jinseId {
 			log.Printf("Sending top story to channel...")
-			stats.updatePrevTopStoryId(story.ID)
+			jinseId = story.ID
 			subscribers, _ := models.FindSubscribers(ctx)
 			for _, subscriber := range subscribers {
 				conversationId := bot.UniqueConversationId(config.MixinClientId, subscriber.UserId)
@@ -50,14 +34,12 @@ func sendJinseTopStoryToChannel(ctx context.Context, stats *JinseStats) {
 				bot.PostMessage(ctx, conversationId, subscriber.UserId, bot.UuidNewV4().String(), "PLAIN_TEXT", data, config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey)
 			}
 		} else {
-			log.Printf("Same top story ID: %d, no message sent.", prevStoryId)
+			log.Printf("Same top story ID: %d, no message sent.", jinseId)
 		}
 	}
 }
 func (service *JinseNewsService) Run(ctx context.Context) error {
-	topStory := getTopJinseStory()
-	stats := &JinseStats{topStory.ID}
-	gocron.Every(5).Minutes().Do(sendJinseTopStoryToChannel, ctx, stats)
+	gocron.Every(1).Minutes().Do(sendJinseTopStoryToChannel, ctx)
 	<-gocron.Start()
 	return nil
 }

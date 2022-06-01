@@ -15,7 +15,7 @@ type LiveData struct {
 }
 
 type LiveItem struct {
-	ID      int    `json:"id"`
+	ID      int64  `json:"id"`
 	Content string `json:"content"`
 	Link    string `json:"link"`
 }

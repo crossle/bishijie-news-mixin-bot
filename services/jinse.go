@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-var jinseAPI = "https://api.jinse.com/v4/live/list?reading=false&_source=m&limit=5"
+var jinseAPI = "https://api.jinse.cn/noah/v2/lives?reading=false&_source=m&flag=down&id=0&category=0&limit=5"
 
 type ListData struct {
 	LiveData []LiveData `json:"list"`

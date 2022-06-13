@@ -39,7 +39,7 @@ func sendJinseTopStoryToChannel(ctx context.Context) {
 	}
 }
 func (service *JinseNewsService) Run(ctx context.Context) error {
-	gocron.Every(1).Minutes().Do(sendJinseTopStoryToChannel, ctx)
+	gocron.Every(5).Minutes().Do(sendJinseTopStoryToChannel, ctx)
 	<-gocron.Start()
 	return nil
 }

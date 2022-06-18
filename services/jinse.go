@@ -15,9 +15,10 @@ type LiveData struct {
 }
 
 type LiveItem struct {
-	ID      int64  `json:"id"`
-	Content string `json:"content"`
-	Link    string `json:"link"`
+	ID        int64  `json:"id"`
+	Content   string `json:"content"`
+	Link      string `json:"link"`
+	CreatedAt int64  `json:"created_at"`
 }
 
 func GetJinseStories() ([]LiveItem, error) {

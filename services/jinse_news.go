@@ -24,9 +24,9 @@ func sendJinseTopStoryToChannel(ctx context.Context) {
 	}
 	for i := len(stories) - 1; i >= 0; i-- {
 		story := stories[i]
-		if story.ID > jinseId {
+		if story.CreatedAt > jinseId {
 			log.Printf("Sending top story to channel...")
-			jinseId = story.ID
+			jinseId = story.CreatedAt
 			subscribers, _ := models.FindSubscribers(ctx)
 			for _, subscriber := range subscribers {
 				conversationId := bot.UniqueConversationId(config.MixinClientId, subscriber.UserId)
@@ -34,7 +34,7 @@ func sendJinseTopStoryToChannel(ctx context.Context) {
 				bot.PostMessage(ctx, conversationId, subscriber.UserId, bot.UuidNewV4().String(), "PLAIN_TEXT", data, config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey)
 			}
 		} else {
-			log.Printf("Same top story ID: %d, no message sent.", jinseId)
+			log.Printf("Same top jinse story ID: %d, no message sent.", jinseId)
 		}
 	}
 }

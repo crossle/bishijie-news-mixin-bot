@@ -27,5 +27,8 @@ func GetJinseStories() ([]LiveItem, error) {
 	if err := json.Unmarshal(content, &f); err != nil {
 		return nil, err
 	}
+	if len(f.LiveData) == 0 {
+		return []LiveItem{}, nil
+	}
 	return f.LiveData[0].Lives, nil
 }

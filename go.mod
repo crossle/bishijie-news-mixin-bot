@@ -1,6 +1,6 @@
 module github.com/crossle/bishijie-news-mixin-bot
 
-go 1.18
+go 1.24.2
 
 require (
 	cloud.google.com/go/logging v1.6.1

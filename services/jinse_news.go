@@ -31,7 +31,10 @@ func sendJinseTopStoryToChannel(ctx context.Context) {
 			for _, subscriber := range subscribers {
 				conversationId := bot.UniqueConversationId(config.MixinClientId, subscriber.UserId)
 				data := base64.StdEncoding.EncodeToString([]byte(story.Content + " " + story.Link))
-				bot.PostMessage(ctx, conversationId, subscriber.UserId, bot.UuidNewV4().String(), "PLAIN_TEXT", data, config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey)
+				err = bot.PostMessage(ctx, conversationId, subscriber.UserId, bot.UuidNewV4().String(), "PLAIN_TEXT", data, config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey)
+				if err != nil {
+					log.Println("bad send message", err)
+				}
 			}
 		} else {
 			log.Printf("Same top jinse story ID: %d, no message sent.", jinseId)

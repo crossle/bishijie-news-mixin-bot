@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	bot "github.com/MixinNetwork/bot-api-go-client"
+	bot "github.com/MixinNetwork/bot-api-go-client/v3"
 	"github.com/crossle/bishijie-news-mixin-bot/session"
 )
 

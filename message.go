@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"time"
 
-	bot "github.com/MixinNetwork/bot-api-go-client"
+	bot "github.com/MixinNetwork/bot-api-go-client/v3"
 
 	"github.com/crossle/bishijie-news-mixin-bot/config"
 	"github.com/crossle/bishijie-news-mixin-bot/durable"
@@ -56,7 +56,7 @@ func (r ResponseMessage) SyncAck() bool {
 func (r ResponseMessage) OnMessage(ctx context.Context, msg bot.MessageView, uid string) error {
 	if msg.Category != bot.MessageCategorySystemAccountSnapshot && msg.Category != bot.MessageCategorySystemConversation && msg.ConversationId == bot.UniqueConversationId(config.MixinClientId, msg.UserId) {
 		if msg.Category == "PLAIN_TEXT" {
-			data, err := base64.StdEncoding.DecodeString(msg.Data)
+			data, err := base64.RawURLEncoding.DecodeString(msg.DataBase64)
 			if err != nil {
 				return bot.BlazeServerError(ctx, err)
 			}

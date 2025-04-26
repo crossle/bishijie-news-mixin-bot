@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	bot "github.com/MixinNetwork/bot-api-go-client"
+	bot "github.com/MixinNetwork/bot-api-go-client/v3"
 	"github.com/crossle/bishijie-news-mixin-bot/config"
 	"github.com/crossle/bishijie-news-mixin-bot/models"
 	"github.com/jasonlvhit/gocron"
@@ -16,7 +16,7 @@ type JinseNewsService struct{}
 
 var jinseId int64
 
-func sendJinseTopStoryToChannel(ctx context.Context) {
+func sendJinseTopStoryToChannel(ctx context.Context, safeUser *bot.SafeUser) {
 	stories, err := GetJinseStories()
 	if err != nil {
 		fmt.Println(err)
@@ -30,8 +30,8 @@ func sendJinseTopStoryToChannel(ctx context.Context) {
 			subscribers, _ := models.FindSubscribers(ctx)
 			for _, subscriber := range subscribers {
 				conversationId := bot.UniqueConversationId(config.MixinClientId, subscriber.UserId)
-				data := base64.StdEncoding.EncodeToString([]byte(story.Content + " " + story.Link))
-				err = bot.PostMessage(ctx, conversationId, subscriber.UserId, bot.UuidNewV4().String(), "PLAIN_TEXT", data, config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey)
+				data := base64.RawURLEncoding.EncodeToString([]byte(story.Content + " " + story.Link))
+				err = bot.PostMessage(ctx, conversationId, subscriber.UserId, bot.UuidNewV4().String(), "PLAIN_TEXT", data, safeUser)
 				if err != nil {
 					log.Println("bad send message", err)
 				}
@@ -42,7 +42,8 @@ func sendJinseTopStoryToChannel(ctx context.Context) {
 	}
 }
 func (service *JinseNewsService) Run(ctx context.Context) error {
-	gocron.Every(5).Minutes().Do(sendJinseTopStoryToChannel, ctx)
+	safeUser := bot.NewSafeUser(config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey)
+	gocron.Every(5).Minutes().Do(sendJinseTopStoryToChannel, ctx, safeUser)
 	<-gocron.Start()
 	return nil
 }

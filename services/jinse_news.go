@@ -27,14 +27,26 @@ func sendJinseTopStoryToChannel(ctx context.Context, safeUser *bot.SafeUser) {
 		if story.CreatedAt > jinseId {
 			log.Printf("Sending top story to channel...")
 			jinseId = story.CreatedAt
-			subscribers, _ := models.FindSubscribers(ctx)
+			subscribers, err := models.FindSubscribers(ctx)
+			if err != nil {
+				log.Println("Error finding subscribers:", err)
+				return
+			}
 			for _, subscriber := range subscribers {
 				conversationId := bot.UniqueConversationId(config.MixinClientId, subscriber.UserId)
 				data := base64.RawURLEncoding.EncodeToString([]byte(story.Content + " " + story.Link))
-				err = bot.PostMessage(ctx, conversationId, subscriber.UserId, bot.UuidNewV4().String(), "PLAIN_TEXT", data, safeUser)
+				mr := &bot.MessageRequest{
+					ConversationId: conversationId,
+					MessageId:      bot.UuidNewV4().String(),
+					Category:       "PLAIN_TEXT",
+					DataBase64:     data,
+					RecipientId:    subscriber.UserId,
+				}
+				err = bot.PostMessages(ctx, []*bot.MessageRequest{mr}, safeUser)
 				if err != nil {
 					log.Println("bad send message", err)
 				}
+				log.Printf("Sent message to %s: %s", subscriber.UserId, story.Content)
 			}
 		} else {
 			log.Printf("Same top jinse story ID: %d, no message sent.", jinseId)
@@ -43,7 +55,7 @@ func sendJinseTopStoryToChannel(ctx context.Context, safeUser *bot.SafeUser) {
 }
 func (service *JinseNewsService) Run(ctx context.Context) error {
 	safeUser := bot.NewSafeUser(config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey)
-	gocron.Every(5).Minutes().Do(sendJinseTopStoryToChannel, ctx, safeUser)
+	gocron.Every(5).Second().Do(sendJinseTopStoryToChannel, ctx, safeUser)
 	<-gocron.Start()
 	return nil
 }

@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/logging v1.13.0
 	github.com/MixinNetwork/bot-api-go-client/v3 v3.11.1
 	github.com/jasonlvhit/gocron v0.0.1
-	github.com/mattn/go-sqlite3 v1.14.13
+	github.com/mattn/go-sqlite3 v1.14.22
 )
 
 require (

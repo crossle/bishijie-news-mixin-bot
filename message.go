@@ -75,26 +75,18 @@ func (r ResponseMessage) OnMessage(ctx context.Context, msg bot.MessageView, uid
 					}
 				}
 			} else {
-				content := `请更新 Mixin Messenger 到最新版本 0.14.1+`
 				if err := r.blaze.SendAppButton(ctx, msg.ConversationId, msg.UserId, "点我订阅", "input:/start", "#AA4848"); err != nil {
 					return bot.BlazeServerError(ctx, err)
 				}
 				if err := r.blaze.SendAppButton(ctx, msg.ConversationId, msg.UserId, "点我取消订阅", "input:/stop", "#AA4848"); err != nil {
 					return bot.BlazeServerError(ctx, err)
 				}
-				if err := r.blaze.SendPlainText(ctx, msg, content); err != nil {
-					return bot.BlazeServerError(ctx, err)
-				}
 			}
 		} else {
-			content := `请更新 Mixin Messenger 到最新版本 0.14.1+`
 			if err := r.blaze.SendAppButton(ctx, msg.ConversationId, msg.UserId, "点我订阅", "input:/start", "#AA4848"); err != nil {
 				return bot.BlazeServerError(ctx, err)
 			}
 			if err := r.blaze.SendAppButton(ctx, msg.ConversationId, msg.UserId, "点我取消订阅", "input:/stop", "#AA4848"); err != nil {
-				return bot.BlazeServerError(ctx, err)
-			}
-			if err := r.blaze.SendPlainText(ctx, msg, content); err != nil {
 				return bot.BlazeServerError(ctx, err)
 			}
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-var jinseAPI = "https://api.jinse.cn/noah/v2/lives?reading=false&_source=m&flag=down&id=0&category=0&limit=5"
+var jinseAPI = "https://relayer.mixin.dev/api.jinse.cn/noah/v2/lives?reading=false&_source=m&flag=down&id=0&category=0&limit=5"
 
 type ListData struct {
 	LiveData []LiveData `json:"list"`

@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
+	"slices"
 
 	bot "github.com/MixinNetwork/bot-api-go-client/v3"
 	"github.com/crossle/bishijie-news-mixin-bot/config"
@@ -32,21 +33,24 @@ func sendJinseTopStoryToChannel(ctx context.Context, safeUser *bot.SafeUser) {
 				log.Println("Error finding subscribers:", err)
 				return
 			}
-			for _, subscriber := range subscribers {
-				conversationId := bot.UniqueConversationId(config.MixinClientId, subscriber.UserId)
-				data := base64.RawURLEncoding.EncodeToString([]byte(story.Content + " " + story.Link))
-				mr := &bot.MessageRequest{
-					ConversationId: conversationId,
-					MessageId:      bot.UuidNewV4().String(),
-					Category:       "PLAIN_TEXT",
-					DataBase64:     data,
-					RecipientId:    subscriber.UserId,
+			for chunk := range slices.Chunk(subscribers, 100) {
+				var mrs []*bot.MessageRequest
+				for _, subscriber := range chunk {
+					conversationId := bot.UniqueConversationId(config.MixinClientId, subscriber.UserId)
+					data := base64.RawURLEncoding.EncodeToString([]byte(story.Content + " " + story.Link))
+					mr := &bot.MessageRequest{
+						ConversationId: conversationId,
+						MessageId:      bot.UuidNewV4().String(),
+						Category:       "PLAIN_TEXT",
+						DataBase64:     data,
+						RecipientId:    subscriber.UserId,
+					}
+					mrs = append(mrs, mr)
 				}
-				err = bot.PostMessages(ctx, []*bot.MessageRequest{mr}, safeUser)
+				err = bot.PostMessages(ctx, mrs, safeUser)
 				if err != nil {
 					log.Println("bad send message", err)
 				}
-				log.Printf("Sent message to %s: %s", subscriber.UserId, story.Content)
 			}
 		} else {
 			log.Printf("Same top jinse story ID: %d, no message sent.", jinseId)
@@ -55,7 +59,7 @@ func sendJinseTopStoryToChannel(ctx context.Context, safeUser *bot.SafeUser) {
 }
 func (service *JinseNewsService) Run(ctx context.Context) error {
 	safeUser := bot.NewSafeUser(config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey)
-	gocron.Every(5).Second().Do(sendJinseTopStoryToChannel, ctx, safeUser)
+	gocron.Every(5).Minute().Do(sendJinseTopStoryToChannel, ctx, safeUser)
 	<-gocron.Start()
 	return nil
 }
